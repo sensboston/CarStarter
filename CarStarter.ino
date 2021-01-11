@@ -7,9 +7,10 @@
 #include <ESPNtpClient.h>
 #include <Arduino_JSON.h>
 
+// Please note: change defines below to your needs
 #define MOTOR_PIN 16   // GPIO 16, on NodeMCU marked as "D0"
-#define SSID "<YOUR SSID>"
-#define SSIDPWD "<YOUR WIFI PASSWORD>"
+#define SSID "<YOUR_WIFI_SSID>"
+#define SSIDPWD "<YOUR_WIFI_PASSWORD>"
 #define NTP_SERVER "time.google.com"
 #define TIME_ZONE TZ_America_New_York
 const String apiKey = "<YOUR_OPEN_WEATHER_MAP_ID>";
@@ -453,19 +454,23 @@ void loop()
         // Turn built-in LED on if we're connected
         digitalWrite(LED_BUILTIN, isConnected ? LOW : HIGH);
 
-        // Check day of week first
-        time_t t = time(NULL);
-        struct tm now = *localtime(&t);
-        if ((weekRange == 0 && (now.tm_wday > 0 && now.tm_wday < 6)) || weekRange == 1)
+        // Should we check start conditions?
+        if (numStarts > 0)
         {
-            if ((now.tm_hour == startHours[0] && now.tm_min == startMinutes[0]) ||
-                (numStarts > 1 && now.tm_hour == startHours[1] && now.tm_min == startMinutes[1]))
+            // Check day of week first
+            time_t t = time(NULL);
+            struct tm now = *localtime(&t);
+            if ((weekRange == 0 && (now.tm_wday > 0 && now.tm_wday < 6)) || weekRange == 1)
             {
-                if (isConnected) getCurrentTemperature();
-                if (currTemp < tempCondition)
+                if ((now.tm_hour == startHours[0] && now.tm_min == startMinutes[0]) ||
+                    (numStarts > 1 && now.tm_hour == startHours[1] && now.tm_min == startMinutes[1]))
                 {
-                    Serial.println ("Starting car engine!");
-                    doStartEngine = true;
+                    if (isConnected) getCurrentTemperature();
+                    if (currTemp < tempCondition)
+                    {
+                        Serial.println ("Starting car engine!");
+                        doStartEngine = true;
+                    }
                 }
             }
         }
@@ -475,7 +480,7 @@ void loop()
     if (!isConnected && millis()-prevBlinkMillis > 200)
     {
         prevBlinkMillis = millis();
-        blinkState != blinkState;
+        blinkState ^= true; // invert boolean
         digitalWrite(LED_BUILTIN, blinkState ? LOW : HIGH);        
     }
 
