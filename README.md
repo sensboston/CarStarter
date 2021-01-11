@@ -22,6 +22,8 @@ The most challenging part of this project was a crank mechanism (to convert rota
 
 I created CarStarter.ino app for the ESP8266 devboard (however I prefer "standard" ESP32 much more - but on moment to strating working on the project, I had ESP8266 only) but app can be simple ported to ESP32, or any Arduino-compatible SoC.
 
+Schematic is fair simple: connect your 5V power supply to ESP8266/ESP32 and servo Vin & ground, and attach servo's control wire to D0 (or any GPIO pin) on your devboard.
+
 Web UI screenshot from desktop Chrome browser:
 
 ![alt text](https://github.com/sensboston/CarStarter/blob/master/chrome_screenshot.png?raw=true)
