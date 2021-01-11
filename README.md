@@ -17,6 +17,15 @@ What do you need to build this project:
 - some tools 
 - skillful hands
 
-Web UI screenshot from desktop browser (it looks the same on mobile)
+I still don't have 3D printer, so to build a solution base, I've used half-inch wood plank, saw, jigsaw, drill and screws.
+The most challenging part of this project was a crank mechanism (to convert rotation to linear motion). I couldn't find any option available on Internet fopr reasonable price, so I built my own using plastic tube and rod from broken windspinner. Using lighter, pliers, needle file, drill and plastic bolts, I've got perfectly working crank. I've attach my crank to base by epoxy glue, and everything become "stable as a rock".
+
+I created CarStarter.ino app for the ESP8266 devboard (however I prefer "standard" ESP32 much more - but on moment to strating working on the project, I had ESP8266 only) but app can be simple ported to ESP32, or any Arduino-compatible SoC.
+
+Web UI screenshot from desktop Chrome browser:
 
 ![alt text](https://github.com/sensboston/CarStarter/blob/master/chrome_screenshot.png?raw=true)
+
+Web UI screenshot from mobile Chrome browser:
+
+![alt text](https://github.com/sensboston/CarStarter/blob/master/mobile_screenshot.png?raw=true)
