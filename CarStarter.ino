@@ -350,6 +350,8 @@ void writeSettings()
 
 void saveSettings()
 {
+    CHECK_AUTH
+
     if (server.method() == HTTP_POST)
     {
         Serial.println("saveSettings()");
