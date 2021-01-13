@@ -157,7 +157,7 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
     </tr>
     <tr>
       <td id='serverTime' align='center'></td>
-      <td align='center'>%2d °C</td>
+      <td align='center'>%i &#176;C</td>
     </tr>
   </table>
   <form action="/settings" method="POST">
