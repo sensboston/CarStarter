@@ -64,162 +64,180 @@ int readIntFromEEPROM(int address)
 }
 
 // This is HTML page for settings
-const char index_html[] PROGMEM = R"rawliteral(
-<!DOCTYPE html>
+const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
 <html>
-   <head>
-      <title>Remote car engine starter</title>
-      <meta name='viewport' content='width=device-width, initial-scale=1'/>
-      <style>
-        table {
-            border-collapse: separate; 
-            border-spacing: 1px 1px;
-        }
-        th, td {
-             width: 170px;
-             height: 30px;
-        }
-        input {
-             float: align;
-             text-align: left;
-             width: 95%%;
-        }
-        select {
-             float: align;
-             width: 95%%;
-        }
-        button {
-             display: block;
-             width: 100%%;
-             border: none;
-             background-color: #3a853d;
-             color: white;
-             padding: 10px 22px;
-             font-size: 12px;
-             cursor: pointer;
-             text-align: center;
-        }
-        button:hover {
-             background-color: #4CAF50;
-             color: white;
-         }
-      </style>
-      <script>
-         var serverTime, upTime;
-         function setTime() {
-             upTime = new Date('01/01/1970 %s');            
-             serverTime = new Date('%s');
-             document.addEventListener("visibilitychange", function() { window.location.reload(); });
-             startTime();
-         }
-         function startTime() {
-             const monthName = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-             serverTime = new Date(serverTime.getTime()+500);
-             upTime = new Date(upTime.getTime()+500);
-             var today = new Date(serverTime);
-             var day = today.getDate();
-             var month = today.getMonth();
-             var year = today.getFullYear();
-             var h=today.getHours();
-             var m=today.getMinutes();
-             var s=today.getSeconds();
-             m = checkTime(m);
-             s = checkTime(s);
-             document.getElementById('serverTime').innerHTML = monthName[month]+' '+day+', '+year+'  '+h+':'+m+':'+s;
+<head>
+  <title>Remote car engine starter</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <style>
+    table {
+      border-collapse: separate;
+      border-spacing: 1px 1px;
+    }
+    th, td {
+      width: 170px;
+      height: 30px;
+    }
+    input {
+      float: align;
+      text-align: left;
+      width: 95%%;
+    }
+    select {
+      float: align;
+      width: 95%%;
+    }
+    button {
+      display: block;
+      width: 100%%;
+      border: none;
+      background-color: #3a853d;
+      color: white;
+      padding: 10px 22px;
+      font-size: 12px;
+      cursor: pointer;
+      text-align: center;
+    }
+    button:hover {
+      background-color: #4CAF50;
+      color: white;
+    }
+  </style>
+  <script>
+    var serverTime, upTime;
 
-             var up = new Date(upTime);
-             h=up.getHours();
-             m=up.getMinutes();
-             s=up.getSeconds();
-             m = checkTime(m);
-             s = checkTime(s);
-             document.getElementById('upTime').innerHTML = h+':'+m+':'+s;
-             
-             var t = setTimeout(function(){startTime()},500);
-         }
-         function checkTime(i) { if (i<10) {i = '0' + i}; return i; }
-      </script>
-   </head>
-   <body onload='setTime()'>
-      <table>
-         <tr style='background-color:#EAFAF1;'>
-            <td style='text-align:center'>System uptime:</td>
-            <td align='center' id='upTime'>00:00:00></td>
-         </tr>
-         <tr height='12px'/>
-         <tr>
-            <td><button onclick="window.location.href='/updateTime'">Server time</button></td>
-            <td><button onclick="window.location.href='/updateTemperature'">Temperature</button></td>
-         </tr>
-         <tr>
-            <td id='serverTime' align='center'></td>
-            <td align='center'>%2d °C</td>
-         </tr>
-      </table>
-      <form action="/settings" method="POST">
-         <table>
-            <tr>
-               <td colspan='2' align='center'><b>Engine start conditions:</b></td>
-            </tr>
-            <tr>
-               <td>Temperature below:</td>
-               <td><input type='number' name='tempCondition' id='tempCondition' min='-10' max='10' value='%d'></input></td>
-            </tr>
-            <tr>
-               <td>Time:</td>
-               <td><input type='time' name='startTime' id='startTime' value='%02d:%02d:00'></input></td>
-            </tr>
-            <tr>
-               <td>Weekly range:</td>
-               <td><select name='weekRange' id='weekRange'><option %s>Workdays</option><option %s>All week</option></select></td>
-            </tr>
-            <tr>
-               <td>How many times:</td>
-               <td><input type='number' name='numStarts' id='numStarts' min='0' max='2' value='%d'></input></td>
-            </tr>
-            <tr>
-               <td>Interval (min):</td>
-               <td><input type='number' name='interval' id='interval' min='11' max='30' value='%d'></input></td>
-            </tr>
-            <tr>
-               <td colspan='2' align='center'><b>Login credentials:</b></td>
-            </tr>
-            <tr>
-               <td>User:</td>
-               <td><input name='user' id='user' style='text-align:left;' value='%s'></input></td>
-            </tr>
-            <tr>
-               <td>Password:</td>
-               <td><input type='password' name='password' id='password' style='text-align:left;' value='%s'></input></td>
-            </tr>
-            <tr height='12px'/>
-            <tr>
-              <td colspan='2'><button type='submit'>Save settings</button></td>
-            </tr>
-            <tr height='12px'/>
-        </table>
-     </form>
-     <button style='width: 342px; background-color: #0020d4; color: white;' onclick="window.location.href='/startEngine'">Start car engine now</button>     
-   </body>
-</html>
-)rawliteral";
+    function pad(s) {
+      return (s < 10 ? '0' : '') + s;
+    }
 
-char temp[6000];
+    function formatUptime(seconds) {
+      var hours = Math.floor(seconds / (60 * 60));
+      var days = Math.floor(hours / 24);
+      if (days > 0) hours -= days * 24;
+      var minutes = Math.floor(seconds %% (60 * 60) / 60);
+      var seconds = Math.floor(seconds %% 60);
+      var daystr = ' day' + (days == 1 ? '' : 's') + ' ';
+      return (days > 0 ? days + daystr : '') + pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+    }
+
+    function setTime() {
+      upTime = %d;
+      document.getElementById('upTime').innerHTML = formatUptime(upTime);
+      serverTime = new Date('%s');
+      document.addEventListener("visibilitychange", function() { window.location.reload(); });
+      startTime();
+    }
+
+    function startTime() {
+      const monthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      serverTime = new Date(serverTime.getTime() + 1000);
+      upTime++;
+      var today = new Date(serverTime);
+      document.getElementById('serverTime').innerHTML = monthName[today.getMonth()] + ' ' + today.getDate() + ', ' + today.getFullYear() + '   ' + pad(today.getHours()) + ':' + pad(today.getMinutes()) + ':' + pad(today.getSeconds());
+      document.getElementById('upTime').innerHTML = formatUptime(upTime);
+      var t = setTimeout(function() { startTime() }, 1000);
+    }
+  </script>
+</head>
+
+<body onload='setTime()'>
+  <table>
+    <tr style='background-color:#EAFAF1;'>
+      <td style='text-align:center'>System uptime:</td>
+      <td align='center' id='upTime'>00:00:00</td>
+    </tr>
+    <tr height='12px'/>
+    <tr>
+      <td>
+        <button onclick="window.location.href='/updateTime'">Server time</button>
+      </td>
+      <td>
+        <button onclick="window.location.href='/updateTemperature'">Temperature</button>
+      </td>
+    </tr>
+    <tr>
+      <td id='serverTime' align='center'></td>
+      <td align='center'>%2d °C</td>
+    </tr>
+  </table>
+  <form action="/settings" method="POST">
+    <table>
+      <tr>
+        <td colspan='2' align='center'><b>Engine start conditions:</b></td>
+      </tr>
+      <tr>
+        <td>Temperature below:</td>
+        <td>
+          <input type='number' name='tempCondition' id='tempCondition' min='-10' max='10' value='%d'></input>
+        </td>
+      </tr>
+      <tr>
+        <td>Time:</td>
+        <td>
+          <input type='time' name='startTime' id='startTime' value='%02d:%02d:00'></input>
+        </td>
+      </tr>
+      <tr>
+        <td>Weekly range:</td>
+        <td>
+          <select name='weekRange' id='weekRange'>
+            <option %s>Workdays</option>
+            <option %s>All week</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>How many times:</td>
+        <td>
+          <input type='number' name='numStarts' id='numStarts' min='0' max='2' value='%d'></input>
+        </td>
+      </tr>
+      <tr>
+        <td>Interval (min):</td>
+        <td>
+          <input type='number' name='interval' id='interval' min='11' max='30' value='%d'></input>
+        </td>
+      </tr>
+      <tr>
+        <td colspan='2' align='center'><b>Login credentials:</b></td>
+      </tr>
+      <tr>
+        <td>User:</td>
+        <td>
+          <input name='user' id='user' style='text-align:left;' value='%s'></input>
+        </td>
+      </tr>
+      <tr>
+        <td>Password:</td>
+        <td>
+          <input type='password' name='password' id='password' style='text-align:left;' value='%s'></input>
+        </td>
+      </tr>
+      <tr height='12px' />
+      <tr>
+        <td colspan='2'>
+          <button type='submit'>Save settings</button>
+        </td>
+      </tr>
+      <tr height='12px' />
+    </table>
+  </form>
+  <button style='border:none; width:344px; background-color:#0020d4; color:white;' onclick="window.location.href='/startEngine'">Start car engine now</button>
+</body>
+
+</html>)rawliteral";
+
+#define HTML_SIZE sizeof(index_html)+40
+char temp[HTML_SIZE];
 void handleRoot() 
 {
     CHECK_AUTH
-    
-    char uptm[10];
-    int sec = millis() / 1000;
-    int min = sec / 60;
-    int hr = min / 60;
-    snprintf(uptm, 12, "%02d:%02d:%02d", hr, min % 60, sec % 60);
 
     String range_1 = (weekRange == 0) ? "selected=''" : "";
     String range_2 = (weekRange == 1) ? "selected=''" : "";
 
-    snprintf(temp, 6000, index_html, 
-        uptm, 
+    snprintf(temp, HTML_SIZE, index_html, 
+        millis()/1000, 
         NTP.getTimeDateStringForJS(), 
         currTemp, 
         tempCondition, 
