@@ -2,6 +2,13 @@
 
 ![alt text](https://github.com/sensboston/CarStarter/blob/master/car_starter.png?raw=true)
 
+Car starter in action:
+
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=zxV2DBHOxKA"><img src="https://img.youtube.com/vi/zxV2DBHOxKA/0.jpg" alt="Car starter in action"></a>
+</div>
+
+
 Pretty simple (by hardware) but "smart enough" project to implement one of the important home automation tasks.
 If you should commute every cold winter morning to your office, and do have car remote start option installed, this solution is definitely for you!
 
