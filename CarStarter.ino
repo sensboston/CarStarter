@@ -69,6 +69,8 @@ const char index_html[] PROGMEM = R"rawliteral(<!DOCTYPE html>
 <head>
   <title>Remote car engine starter</title>
   <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <link rel='icon' href='http://senssoft.com/car.ico' type='image/x-icon' />
+  <link rel='shortcut icon' href='http://senssoft.com/car.ico' type='image/x-icon' />  
   <style>
     table {
       border-collapse: separate;
