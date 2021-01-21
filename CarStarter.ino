@@ -390,15 +390,12 @@ void saveSettings()
             strptime(value.c_str(), "%Y-%m-%d %H:%M:%S", &startTime);
             startHours[0] = startTime.tm_hour;
             startMinutes[0] = startTime.tm_min;
-            // if we should start engine twice, let's add interval and set second time
-            if (numStarts > 1 && interval > 0)
-            {
-                time_t t = mktime(&startTime);
-                t += interval*60;
-                startTime = *localtime(&t);
-                startHours[1] = startTime.tm_hour;
-                startMinutes[1] = startTime.tm_min;
-            }
+            // Add interval and set second time
+            time_t t = mktime(&startTime);
+            t += interval*60;
+            startTime = *localtime(&t);
+            startHours[1] = startTime.tm_hour;
+            startMinutes[1] = startTime.tm_min;
         }
         writeSettings();
     }
