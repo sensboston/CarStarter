@@ -51,6 +51,7 @@ String user = "";
 String password = "";
 #define PASS_ADDR USER_ADDR+20
 
+const String sessionIDName = "CarStarterSessionID=";
 String getToken() { return sha1(String(user) + ":" + String(password) + ":" + server.client().remoteIP().toString()); }
 
 bool tokenAuthenticated() 
@@ -58,7 +59,7 @@ bool tokenAuthenticated()
     if (server.hasHeader("Cookie")) 
     {
         String cookie = server.header("Cookie");
-        if (cookie.indexOf("ESPSESSIONID=" + getToken()) != -1) return true;
+        if (cookie.indexOf(sessionIDName + getToken()) != -1) return true;
     }
     return false;
 }
@@ -264,7 +265,8 @@ void handleRoot()
         user.c_str(),
         password.c_str());
 
-    if (!tokenExist) server.sendHeader("Set-Cookie", "ESPSESSIONID=" + getToken());
+    // Set persistent cookie
+    if (!tokenExist) server.sendHeader("Set-Cookie", sessionIDName + getToken() + ";Expires=Fri, 31 Dec 9999 23:59:59 GMT");
     server.send(200, "text/html", temp);
 }
 
