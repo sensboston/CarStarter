@@ -6,6 +6,7 @@
 #include <ESP8266WebServer.h>
 #include <ESPNtpClient.h>
 #include <Arduino_JSON.h>
+#include "Hash.h"
 
 // Please note: change defines below to your needs
 #define MOTOR_PIN 16   // GPIO 16, on NodeMCU marked as "D0"
@@ -19,7 +20,8 @@ const String countryCode = "<YOUR_COUNTRY_CODE>";
 
 ESP8266WebServer server(80);
 #define GO_BACK server.sendHeader("Location", "/",true); server.send(302, "text/plane","");
-#define CHECK_AUTH if ((user != "" || password != "") && !server.authenticate(user.c_str(), password.c_str())) return server.requestAuthentication();
+bool tokenAuthenticated();
+#define CHECK_AUTH bool tokenExist=tokenAuthenticated(); if (!tokenExist) { if ((user != "" || password != "") && !server.authenticate(user.c_str(), password.c_str())) return server.requestAuthentication(); }
 
 Servo motor;
 
@@ -48,6 +50,18 @@ String user = "";
 #define USER_ADDR 12
 String password = "";
 #define PASS_ADDR USER_ADDR+20
+
+String getToken() { return sha1(String(user) + ":" + String(password) + ":" + server.client().remoteIP().toString()); }
+
+bool tokenAuthenticated() 
+{
+    if (server.hasHeader("Cookie")) 
+    {
+        String cookie = server.header("Cookie");
+        if (cookie.indexOf("ESPSESSIONID=" + getToken()) != -1) return true;
+    }
+    return false;
+}
 
 // EEPROM helpers
 void writeIntToEEPROM(int address, int number) 
@@ -250,6 +264,7 @@ void handleRoot()
         user.c_str(),
         password.c_str());
 
+    if (!tokenExist) server.sendHeader("Set-Cookie", "ESPSESSIONID=" + getToken());
     server.send(200, "text/html", temp);
 }
 
